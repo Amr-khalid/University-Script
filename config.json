@@ -1,0 +1,28 @@
+{
+  "websiteUrl": "http://applications.eelu.edu.eg/certificates/Gourmet_exams.aspx",
+  "inputSelector": "#txtIdentification",
+  "submitSelector": "#btnSubmit",
+  "searchDelay": {
+    "min": 500,
+    "max": 1200
+  },
+  "headless": false,
+  "timeout": 30000,
+  "maxRetries": 3,
+  "outputFolder": "./output",
+  "outputFile": "results.xlsx",
+  "inputExcelFile": "ids.xlsx",
+  "selectors": {
+    "resultContainer": "#lblResult, .exam-results, table",
+    "notFoundText": ["Not Found", "غير موجود", "لا يوجد بيانات", "No data found"],
+    "fields": {
+      "studentId": "#txtIdentification",
+      "studentName": "#Label3",
+      "faculty": "#Label4",
+      "committee": "#GridView1 tr:nth-child(2) td:nth-child(3)",
+      "hall": "#GridView1 tr:nth-child(2) td:nth-child(4)",
+      "location": "#GridView1 tr:nth-child(2) td:nth-child(5)",
+      "course": "#GridView1 tr:nth-child(2) td:nth-child(1)"
+    }
+  }
+}

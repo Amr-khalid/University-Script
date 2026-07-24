@@ -1,0 +1,17 @@
+{
+  "name": "university-exam-finder",
+  "version": "1.0.0",
+  "description": "Automated university exam student finder with Playwright and ExcelJS",
+  "main": "src/main.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/main.js"
+  },
+  "dependencies": {
+    "chalk": "^5.3.0",
+    "exceljs": "^4.4.0",
+    "inquirer": "^9.3.0",
+    "ora": "^8.0.1",
+    "playwright": "^1.45.0"
+  }
+}

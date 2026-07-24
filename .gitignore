@@ -1,0 +1,17 @@
+# Dependencies
+node_modules/
+
+# Output & State Files
+output/*.xlsx
+!output/.gitkeep
+progress.json
+
+# Logs & Screenshots
+logs/*.log
+!logs/.gitkeep
+screenshots/*.png
+!screenshots/.gitkeep
+
+# System & OS Files
+.DS_Store
+Thumbs.db
