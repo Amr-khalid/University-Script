@@ -7,10 +7,15 @@ import { ProgressManager } from '../utils/progress.js';
 import { Logger } from '../utils/logger.js';
 
 export class SearchRunner {
-  constructor(config) {
+  constructor(config, onProgress = null) {
     this.config = config;
     this.scraper = null;
     this.isInterrupted = false;
+    this.onProgress = onProgress;
+  }
+
+  stop() {
+    this.isInterrupted = true;
   }
 
   formatTime(ms) {
@@ -107,9 +112,39 @@ export class SearchRunner {
           console.log(chalk.red(`  ⚠️ Excel write warning: ${excelErr.message}`));
           await Logger.error(`Excel append error for ID ${currentId}`, excelErr);
         }
+
+        if (this.onProgress) {
+          this.onProgress({
+            status: 'running',
+            currentId,
+            stepNum,
+            total,
+            foundCount,
+            skippedCount,
+            isFound: true,
+            student,
+            searchType,
+            outputFilePath
+          });
+        }
       } else {
         skippedCount++;
         console.log(chalk.red(`✗ Not Found`));
+
+        if (this.onProgress) {
+          this.onProgress({
+            status: 'running',
+            currentId,
+            stepNum,
+            total,
+            foundCount,
+            skippedCount,
+            isFound: false,
+            student: null,
+            searchType,
+            outputFilePath
+          });
+        }
       }
 
       console.log(chalk.gray(`---------------------`));
@@ -123,6 +158,17 @@ export class SearchRunner {
         skippedCount,
         startTime,
         idList
+      });
+    }
+
+    if (this.onProgress) {
+      this.onProgress({
+        status: this.isInterrupted ? 'paused' : 'completed',
+        total,
+        foundCount,
+        skippedCount,
+        searchType,
+        outputFilePath
       });
     }
 

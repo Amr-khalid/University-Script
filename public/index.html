@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🎓 لوحة تحكم استخراج أرقام وجداول امتحانات الطلاب</title>
+  <!-- Google Fonts: Tajawal & Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Tajawal:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <div class="app-container">
+    <!-- Navbar / Header -->
+    <header class="navbar">
+      <div class="brand">
+        <div class="brand-text">
+          <h1>مستخرج بيانات ومواعيد الامتحانات</h1>
+          <span class="badge">Playwright Automation Engine</span>
+        </div>
+      </div>
+      <div class="nav-right-actions">
+        <div class="theme-switcher-wrapper">
+          <i class="fa-solid fa-palette theme-icon"></i>
+          <select id="theme-selector" class="theme-select">
+              <option value="dew">(Pine & Moss)</option>
+              <option value="wine"> (Blood Wine)</option>
+              <option value="navy"> (Winter Navy)</option>
+              <option value="violet"> (Violet Nightfall)</option>
+          </select>
+        </div>
+        <nav class="nav-tabs">
+          <button class="tab-btn active" data-tab="dashboard">
+            <i class="fa-solid fa-chart-pie"></i> لوحة التحكم والبحث
+          </button>
+          <button class="tab-btn" data-tab="settings">
+            <i class="fa-solid fa-sliders"></i> إعدادات الموقع والحقول
+          </button>
+          <button class="tab-btn" data-tab="results">
+            <i class="fa-solid fa-table-list"></i> النتائج المستخرجة
+          </button>
+        </nav>
+      </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      
+      <!-- TAB 1: DASHBOARD & SEARCH -->
+      <section id="tab-dashboard" class="tab-content active">
+        
+        <!-- Search Mode Selector & Input Grid -->
+        <div class="grid grid-2">
+          
+          <!-- Card: Setup Search Task -->
+          <div class="glass-card">
+            <div class="card-header">
+              <h2><i class="fa-solid fa-magnifying-glass"></i> إعداد عملية البحث</h2>
+            </div>
+            
+            <div class="mode-selector">
+              <label class="mode-option">
+                <input type="radio" name="searchMode" value="excel" checked>
+                <div class="mode-box">
+                  <i class="fa-solid fa-file-excel"></i>
+                  <span>رفع ملف Excel</span>
+                </div>
+              </label>
+              <label class="mode-option">
+                <input type="radio" name="searchMode" value="range">
+                <div class="mode-box">
+                  <i class="fa-solid fa-list-ol"></i>
+                  <span>بحث بالنطاق (Range)</span>
+                </div>
+              </label>
+            </div>
+
+            <!-- Excel Upload Mode Area -->
+            <div id="mode-excel-area" class="search-mode-panel active">
+              <div class="drop-zone" id="drop-zone">
+                <i class="fa-solid fa-cloud-arrow-up drop-icon"></i>
+                <p class="drop-title">اسحب واسقط ملف Excel (.xlsx) هنا</p>
+                <p class="drop-subtitle">أو انقر لاختيار ملف من جهازك</p>
+                <input type="file" id="excel-file-input" accept=".xlsx, .xls" hidden>
+              </div>
+              <div id="excel-file-info" class="file-info-bar hidden">
+                <div class="file-details">
+                  <i class="fa-solid fa-file-circle-check text-success"></i>
+                  <span id="uploaded-filename">students.xlsx</span>
+                  <span class="chip chip-success" id="uploaded-count">0 كود</span>
+                </div>
+                <button class="btn btn-sm btn-outline-danger" id="remove-file-btn">
+                  <i class="fa-solid fa-trash"></i>
+                </button>
+              </div>
+              <div id="excel-preview-container" class="preview-box hidden">
+                <span class="preview-title">معاينة الأكواد المكتشفة:</span>
+                <div class="chips-wrapper" id="chips-wrapper"></div>
+              </div>
+            </div>
+
+            <!-- Range Search Mode Area -->
+            <div id="mode-range-area" class="search-mode-panel">
+              <div class="form-group-row">
+                <div class="form-group">
+                  <label for="range-start-id">كود البداية (From):</label>
+                  <input type="text" id="range-start-id" placeholder="مثال: 2300001" value="2300501">
+                </div>
+                <div class="form-group">
+                  <label for="range-end-id">كود النهاية (To):</label>
+                  <input type="text" id="range-end-id" placeholder="مثال: 2300500" value="2300510">
+                </div>
+              </div>
+              <p class="help-text"><i class="fa-solid fa-circle-info"></i> سيقوم النظام بفحص جميع الأكواد المحصورة بين الكودين بالترتيب.</p>
+            </div>
+
+            <!-- Control Buttons -->
+            <div class="controls-row">
+              <button id="start-search-btn" class="btn btn-primary btn-lg">
+                <i class="fa-solid fa-rocket"></i> بدء الفحص الآن
+              </button>
+              <button id="stop-search-btn" class="btn btn-danger btn-lg hidden">
+                <i class="fa-solid fa-circle-pause"></i> إيقاف البحث مؤقتاً
+              </button>
+            </div>
+          </div>
+
+          <!-- Card: Live Metrics & Progress -->
+          <div class="glass-card">
+            <div class="card-header">
+              <h2><i class="fa-solid fa-chart-line"></i> حالة الفحص المباشر</h2>
+              <span id="status-badge" class="badge badge-secondary">جاهز</span>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="progress-section">
+              <div class="progress-labels">
+                <span id="progress-percentage">0%</span>
+                <span id="progress-step-text">0 / 0</span>
+              </div>
+              <div class="progress-bar-bg">
+                <div class="progress-bar-fill" id="progress-fill"></div>
+              </div>
+              <div class="current-id-tracker">
+                الكود الحالي: <strong id="current-id-display">-</strong>
+              </div>
+            </div>
+
+            <!-- Stat Counters -->
+            <div class="stats-grid">
+              <div class="stat-card">
+                <div class="stat-icon bg-blue"><i class="fa-solid fa-layer-group"></i></div>
+                <div class="stat-info">
+                  <span class="stat-val" id="stat-total">0</span>
+                  <span class="stat-label">الإجمالي</span>
+                </div>
+              </div>
+
+              <div class="stat-card">
+                <div class="stat-icon bg-green"><i class="fa-solid fa-user-check"></i></div>
+                <div class="stat-info">
+                  <span class="stat-val text-success" id="stat-found">0</span>
+                  <span class="stat-label">تم العثور عليهم</span>
+                </div>
+              </div>
+
+              <div class="stat-card">
+                <div class="stat-icon bg-red"><i class="fa-solid fa-user-slash"></i></div>
+                <div class="stat-info">
+                  <span class="stat-val text-danger" id="stat-skipped">0</span>
+                  <span class="stat-label">غير موجود</span>
+                </div>
+              </div>
+
+              <div class="stat-card">
+                <div class="stat-icon bg-purple"><i class="fa-solid fa-stopwatch"></i></div>
+                <div class="stat-info">
+                  <span class="stat-val" id="stat-time">00:00</span>
+                  <span class="stat-label">الوقت المستغرق</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Latest Student Extracted Card -->
+            <div id="latest-student-card" class="latest-card hidden">
+              <div class="latest-header">
+                <i class="fa-solid fa-id-card text-success"></i>
+                <strong id="latest-student-name">اسم الطالب</strong>
+                <span class="chip" id="latest-student-id">ID</span>
+              </div>
+              <div class="latest-details">
+                <p><strong>الكلية:</strong> <span id="latest-student-faculty">-</span></p>
+                <p><strong>المادة:</strong> <span id="latest-student-course">-</span></p>
+                <p><strong>اللجنة / القاعة:</strong> <span id="latest-student-room">-</span></p>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Activity Log Console -->
+        <div class="glass-card mt-4">
+          <div class="card-header">
+            <h2><i class="fa-solid fa-terminal"></i> سجل العمليات الفوري (Live System Console)</h2>
+            <button class="btn btn-sm btn-outline-secondary" id="clear-logs-btn">
+              <i class="fa-solid fa-eraser"></i> مسح السجل
+            </button>
+          </div>
+          <div class="console-box" id="console-logs">
+            <div class="log-item info">
+              <span class="time">[00:00:00]</span>
+              <span class="msg">النظام جاهز لاستقبال الأكواد وبدء العمل...</span>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- TAB 2: SETTINGS & FIELD SELECTORS MAPPER -->
+      <section id="tab-settings" class="tab-content">
+        <div class="settings-grid">
+          
+          <!-- Settings Card 1: Website Target URL & Inputs -->
+          <div class="glass-card">
+            <div class="card-header">
+              <h2><i class="fa-solid fa-globe"></i> إعدادات الموقع ومحددات الحقول الرئيسية</h2>
+            </div>
+            
+            <form id="settings-form-1">
+              <div class="form-group">
+                <label for="cfg-url">رابط موقع امتحانات الجامعة (Website Target URL):</label>
+                <div class="input-with-btn">
+                  <input type="url" id="cfg-url" required placeholder="http://applications.eelu.edu.eg/certificates/Gourmet_exams.aspx">
+                  <button type="button" class="btn btn-secondary" id="test-url-btn">
+                    <i class="fa-solid fa-vial"></i> تجربة الرابط
+                  </button>
+                </div>
+                <small class="form-text">يمكنك تغيير رابط الموقع هنا في حال تم تغييره أو نقله بدومين آخر.</small>
+              </div>
+
+              <div class="form-group-row">
+                <div class="form-group">
+                  <label for="cfg-input-selector">مُحدد حقل أدخال كود الطالب (Input Selector):</label>
+                  <input type="text" id="cfg-input-selector" placeholder="#txtIdentification" required>
+                  <small class="form-text">ID أو CSS Selector لمربع النص الذي يكتب فيه كود الطالب (مثال: <code>#txtIdentification</code>).</small>
+                </div>
+                <div class="form-group">
+                  <label for="cfg-submit-selector">مُحدد زر الاستعلام/البحث (Submit Selector):</label>
+                  <input type="text" id="cfg-submit-selector" placeholder="#btnSubmit" required>
+                  <small class="form-text">ID أو Selector الخاص بزر البحث/الضغط (مثال: <code>#btnSubmit</code>).</small>
+                </div>
+              </div>
+
+              <div id="test-url-result" class="alert hidden"></div>
+            </form>
+          </div>
+
+          <!-- Settings Card 2: Extracted Fields Selectors -->
+          <div class="glass-card">
+            <div class="card-header">
+              <h2><i class="fa-solid fa-brackets-curly"></i> مُحددات استخراج البيانات (CSS Selectors Mapper)</h2>
+            </div>
+
+            <form id="settings-form-2">
+              <div class="form-group-row">
+                <div class="form-group">
+                  <label for="cfg-field-name">حقل اسم الطالب (Student Name):</label>
+                  <input type="text" id="cfg-field-name" placeholder="#Label3">
+                </div>
+                <div class="form-group">
+                  <label for="cfg-field-faculty">حقل الكلية (Faculty):</label>
+                  <input type="text" id="cfg-field-faculty" placeholder="#Label4">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="cfg-field-grid">مُحدد جدول البيانات / الجداول (GridView Selector):</label>
+                <input type="text" id="cfg-field-grid" placeholder="#GridView1">
+                <small class="form-text">جدول ASP.NET الذي يحتوي على مواعيد اللجان والقاعات والمواد.</small>
+              </div>
+            </form>
+          </div>
+
+          <!-- Settings Card 3: Scraper Options -->
+          <div class="glass-card">
+            <div class="card-header">
+              <h2><i class="fa-solid fa-gears"></i> خيارات الأداء وسلوك المتصفح</h2>
+            </div>
+
+            <form id="settings-form-3">
+              <div class="form-group-row">
+                <div class="form-group">
+                  <label for="cfg-headless">عرض المتصفح أثناء الفحص (Headless):</label>
+                  <select id="cfg-headless">
+                    <option value="false">إظهار المتصفح أمام المستخدم (Visible Chrome Window)</option>
+                    <option value="true">وضع متخفي خلف الكواليس (Headless Mode - أسرع)</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="cfg-timeout">أقصى وقت انتظار للصفحة (Timeout ms):</label>
+                  <input type="number" id="cfg-timeout" value="30000" step="1000">
+                </div>
+              </div>
+
+              <div class="form-group-row">
+                <div class="form-group">
+                  <label for="cfg-delay-min">أدنى تأخير بين كل عملية (Min Delay ms):</label>
+                  <input type="number" id="cfg-delay-min" value="500">
+                </div>
+                <div class="form-group">
+                  <label for="cfg-delay-max">أقصى تأخير بين كل عملية (Max Delay ms):</label>
+                  <input type="number" id="cfg-delay-max" value="1200">
+                </div>
+              </div>
+
+              <div class="form-group-row">
+                <div class="form-group">
+                  <label for="cfg-output-folder">مجلد حفظ النتائج (Output Folder):</label>
+                  <input type="text" id="cfg-output-folder" value="./output">
+                </div>
+                <div class="form-group">
+                  <label for="cfg-output-file">اسم ملف Excel النتائج (Output File):</label>
+                  <input type="text" id="cfg-output-file" value="results.xlsx">
+                </div>
+              </div>
+
+              <div class="actions-right mt-3">
+                <button type="button" id="save-settings-btn" class="btn btn-success btn-lg">
+                  <i class="fa-solid fa-floppy-disk"></i> حفظ كافة الإعدادات والمحددات
+                </button>
+              </div>
+            </form>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- TAB 3: RESULTS TABLE -->
+      <section id="tab-results" class="tab-content">
+        <div class="glass-card">
+          <div class="card-header border-bottom">
+            <div>
+              <h2><i class="fa-solid fa-file-csv"></i> الجدول الكامل للنتائج المستخرجة</h2>
+              <p class="subtitle">يتم تحديث هذا الجدول تلقائياً وحفظ البيانات مباشرة في ملف Excel.</p>
+            </div>
+            <div class="header-actions">
+              <button id="refresh-results-btn" class="btn btn-outline-secondary">
+                <i class="fa-solid fa-rotate"></i> تحديث الجدول
+              </button>
+              <a href="/api/results/download" id="download-excel-btn" class="btn btn-success" download>
+                <i class="fa-solid fa-file-arrow-down"></i> تحميل ملف Excel كامل
+              </a>
+            </div>
+          </div>
+
+          <!-- Search Filter in Results -->
+          <div class="results-filter-bar">
+            <div class="search-input-wrapper">
+              <i class="fa-solid fa-magnifying-glass search-icon"></i>
+              <input type="text" id="results-search-input" placeholder="تصفية النتائج باسم الطالب أو الكود أو الكلية...">
+            </div>
+            <div class="results-count-badge">
+              عدد الصفوف: <strong id="results-rows-count">0</strong>
+            </div>
+          </div>
+
+          <!-- Table Container -->
+          <div class="table-container">
+            <table class="data-table" id="results-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>الكود / ID</th>
+                  <th>اسم الطالب</th>
+                  <th>الكلية</th>
+                  <th>المادة / المواد</th>
+                  <th>اللجنة</th>
+                  <th>القاعة</th>
+                  <th>الموقع</th>
+                </tr>
+              </thead>
+              <tbody id="results-tbody">
+                <tr>
+                  <td colspan="8" class="text-center p-4 text-muted">
+                    جاري تحميل البيانات المستخرجة...
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>

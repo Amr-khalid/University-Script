@@ -67,8 +67,9 @@ export async function showMainMenu() {
         choices: [
           '1. Search by Range',
           '2. Search by Excel File',
-          '3. Settings',
-          '4. Exit'
+          '3. Launch Web Dashboard UI (لوحة التحكم على المتصفح)',
+          '4. Settings',
+          '5. Exit'
         ]
       }
     ]);
@@ -80,15 +81,34 @@ export async function showMainMenu() {
       case '2. Search by Excel File':
         await handleExcelSearch();
         break;
-      case '3. Settings':
+      case '3. Launch Web Dashboard UI (لوحة التحكم على المتصفح)':
+        await handleLaunchWebUI();
+        break;
+      case '4. Settings':
         await openSettingsMenu();
         break;
-      case '4. Exit':
+      case '5. Exit':
         running = false;
         console.log(chalk.cyan('\nGoodbye! 👋\n'));
         break;
     }
   }
+}
+
+async function handleLaunchWebUI() {
+  console.log(chalk.cyan.bold('\n🚀 Launching Web Dashboard Server...'));
+  console.log(chalk.gray('Opening http://localhost:3000 in your default browser...\n'));
+
+  // Import server or start process
+  try {
+    const { exec } = await import('child_process');
+    exec('start http://localhost:3000');
+    await import('../server/index.js');
+  } catch (err) {
+    console.log(chalk.red(`Failed to launch Web UI: ${err.message}`));
+  }
+
+  await pressEnterToContinue();
 }
 
 async function handleRangeSearch() {

@@ -134,6 +134,8 @@ export class ScraperService {
       let location = '';
       let course = '';
 
+      let examsList = [];
+
       const gridView = document.querySelector('#GridView1');
       if (gridView) {
         const rows = Array.from(gridView.querySelectorAll('tr'));
@@ -149,10 +151,24 @@ export class ScraperService {
           for (const row of dataRows) {
             const cells = Array.from(row.querySelectorAll('td')).map(c => c.innerText.trim());
             if (cells.length >= 5) {
-              if (cells[0]) coursesList.push(cells[0]);
-              if (cells[2]) committeesList.push(cells[2]); // From time
-              if (cells[3]) hallsList.push(cells[3]);      // To time
-              if (cells[4]) locationsList.push(cells[4]);  // Location
+              const cName = cells[0] || '';
+              const cComm = cells[2] || '';
+              const cHall = cells[3] || '';
+              const cLoc = cells[4] || '';
+
+              if (cName) coursesList.push(cName);
+              if (cComm) committeesList.push(cComm);
+              if (cHall) hallsList.push(cHall);
+              if (cLoc) locationsList.push(cLoc);
+
+              if (cName) {
+                examsList.push({
+                  course: cName,
+                  committee: cComm,
+                  hall: cHall,
+                  location: cLoc
+                });
+              }
             }
           }
 
@@ -172,7 +188,8 @@ export class ScraperService {
           course: course || '-',
           committee: committee || '-',
           hall: hall || '-',
-          location: location || '-'
+          location: location || '-',
+          exams: examsList
         }
       };
     }, {
